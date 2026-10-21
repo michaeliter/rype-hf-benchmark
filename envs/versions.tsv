@@ -1,0 +1,19 @@
+tool	version	from	used for
+rype	1.0.0-rc.2, commit f2ed8b8 (branch michaeliter/classify-filter of github.com/michaeliter/RYpe)	built from source (rust 1.93.1, envs/rype-build.yml for the linker)	rype indices; rype and rype -> mm2 (classify filter); threshold sweep (classify run)
+rype-hf	0.1.0, commit 4bbdae7 (github.com/michaeliter/rype-hf-cli)	bash script	streaming rype / rype -> mm2 pipeline
+minimap2	2.30-r1287	envs/minimap2.yml	rype -> mm2 rescue pass; minimap2 indices
+samtools	1.23 (htslib 1.23)	envs/minimap2.yml	rype -> mm2 rescue pass
+bgzip	htslib 1.23	envs/minimap2.yml	rype-hf output (bgzip -l 1)
+cleanifier	1.3.2	envs/cleanifier.yml	cleanifier indices and runs (bgzip from htslib 1.23.1 in the same env)
+Movi 2	commit 9bc0acc (git describe v2.0.0-12-g9bc0acc, github.com/mohsenzakeri/Movi)	built from source	Movi 2 alone; SOTA step 3
+minimap2 (SOTA)	2.26-r1175	envs/human-filtration.yml	SOTA steps 1 and 2
+samtools (SOTA)	1.17 (htslib 1.17)	envs/human-filtration.yml	SOTA steps 1 and 2
+seqtk	1.4-r122	envs/human-filtration.yml	interleaving short reads for Movi 2 and SOTA (mergepe)
+fastp	0.23.4	envs/human-filtration.yml	short-read QC
+fastplong	0.4.1	envs/hf-qc.yml	long-read QC
+ART (art_illumina)	2.5.8 (bioconda art 2016.06.05)	envs/art.yml	short-read holdout simulation
+pbsim3	3.0.5	envs/hifi-sim.yml	long-read simulation
+ccs (pbccs)	6.4.0	envs/hifi-sim.yml	long-read simulation (HiFi consensus)
+pigz	2.8	envs/pigz.yml	survivor splitting and counting
+DuckDB	1.5.4 (08e34c447b), no extensions	official release binary in the hf-repro env	threshold sweep: counting reads per threshold from rype's Parquet scores
+Python	3.11.15, matplotlib 3.11.1, numpy 2.4.6, pandas 3.0.5	envs/hf-repro.yml	eval and figures; tree_rss.py; split_survivors.py

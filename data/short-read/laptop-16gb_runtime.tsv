@@ -1,0 +1,13 @@
+dataset	approach	status	wall_seconds	peak_rss_kb	peak_proc_rss_kb	reads	server_wall_seconds	server_peak_rss_kb	counts_match
+holdout	rype	ok	289.03	11187524	11302280	100095744	282.78	37609368	true
+holdout	rype-mm2	ok	303.22	15156444	11407276	100095744	334.79	46944496	true
+holdout	cleanifier	ok	359.85	15455332	15442868	100095744	377.37	15456068	NA
+holdout	cleanifier-filter	ok	352.79	6861744	6849588	100095744	361.76	6862304	NA
+holdout	movi2-alone	does_not_fit	NA	NA	NA	100095744	1868.27	36740776	NA
+holdout	mm2-mm2-movi	does_not_fit	NA	NA	NA	100095744	5545.84	36740804	NA
+wol2	rype	ok	825.17	8957660	8928272	159632925	929.07	31791772	true
+wol2	rype-mm2	ok	1514.81	15040096	11915244	159632925	1450.00	41578632	true
+wol2	cleanifier	ok	798.36	15466428	15441412	159632925	732.84	NA	NA
+wol2	cleanifier-filter	ok	727.26	6872892	6848316	159632925	689.36	NA	NA
+wol2	movi2-alone	does_not_fit	NA	NA	NA	159632925	11668.41	NA	NA
+wol2	mm2-mm2-movi	does_not_fit	NA	NA	NA	159632925	13223.88	NA	NA

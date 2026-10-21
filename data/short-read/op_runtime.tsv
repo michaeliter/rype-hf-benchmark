@@ -1,0 +1,13 @@
+dataset	approach	rep	wall_seconds	peak_rss_kb	reads
+holdout	cleanifier	1	377.37	15456068	100095744
+wol2	cleanifier	1	732.84	NA	159632925
+holdout	cleanifier-filter	1	361.76	6862304	100095744
+wol2	cleanifier-filter	1	689.36	NA	159632925
+holdout	mm2-mm2-movi	1	5545.84	36740804	100095744
+wol2	mm2-mm2-movi	1	13223.88	NA	159632925
+holdout	movi2-alone	1	1868.27	36740776	100095744
+wol2	movi2-alone	1	11668.41	NA	159632925
+holdout	rype	1	282.78	37609368	100095744
+wol2	rype	1	929.07	31791772	159632925
+holdout	rype-mm2	1	334.79	46944496	100095744
+wol2	rype-mm2	1	1450.00	41578632	159632925

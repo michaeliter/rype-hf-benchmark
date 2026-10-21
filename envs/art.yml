@@ -1,0 +1,19 @@
+name: art
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+  - ursky
+dependencies:
+  - _openmp_mutex=4.5
+  - art=2016.06.05
+  - gsl=2.7
+  - libblas=3.11.0
+  - libcblas=3.11.0
+  - libgcc=15.2.0
+  - libgcc-ng=15.2.0
+  - libgfortran=15.2.0
+  - libgfortran5=15.2.0
+  - libgomp=15.2.0
+  - libopenblas=0.3.33
+  - libstdcxx=15.2.0
