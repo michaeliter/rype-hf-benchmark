@@ -37,9 +37,13 @@ INDEX="$(rype_index "${OP_WINDOW}")"
 
 case "${MOD}" in
     sr) INPUT_ARGS=(-1 "${CONCAT_SR}/${SET}_R1.fastq.gz" -2 "${CONCAT_SR}/${SET}_R2.fastq.gz")
-        MOD_DIR=short-read ;;
+        PASS_ARGS=(); MOD_DIR=short-read ;;
+    # Long reads: at most 100,000 reads per classification pass. classify run
+    # sizes passes from --max-memory, but underestimates long reads' per-read
+    # cost: at a 32 GiB budget the whole holdout (1.8M reads) went into one
+    # pass and peaked at 67 GB.
     lr) INPUT_ARGS=(-1 "${CONCAT_LR}/${SET}.fastq.gz")
-        MOD_DIR=long-read ;;
+        PASS_ARGS=(-b 100000); MOD_DIR=long-read ;;
     *)  logger "unknown modality: ${MOD}"; exit 1 ;;
 esac
 case "${SET}" in holdout|wol2) ;; *) logger "unknown set: ${SET}"; exit 1 ;; esac
@@ -56,8 +60,8 @@ fi
 # cgroup, not the task's), so the budget is explicit: half the job limit.
 # classify run sizes its input batches from the budget without the cap that
 # classify filter has, and runs past it: at 90% of 64 GB all four sets were
-# OOM-killed. The budget only sets the number of passes, not which reads
-# score as host.
+# OOM-killed. The budget (and -b below) only set the number of passes, not
+# which reads score as host.
 BUDGET_MIB=$(( ${SLURM_MEM_PER_NODE:-65536} / 2 ))
 logger "${MOD} ${SET} on $(hostname): w=${OP_WINDOW} t=${THR_GRID[0]} threads=${THREADS} budget=${BUDGET_MIB} MiB"
 RYPE_COMMIT=$(git -C "$(dirname "${RYPE_BIN}")/../.." rev-parse --short HEAD 2>/dev/null || echo '?')
@@ -65,7 +69,7 @@ printf "host\t%s\nslurm_job\t%s\nrype_commit\t%s\nindex\t%s\n" "$(hostname)" "${
     "${RYPE_COMMIT}" "${INDEX}" > "${OUT_DIR}/host.txt"
 
 RAYON_NUM_THREADS=${THREADS} ${BINTIME} -o "${OUT_DIR}/time-v.stderr" "${RYPE_BIN}" classify run -i "${INDEX}" "${INPUT_ARGS[@]}" \
-    -t "${THR_GRID[0]}" --max-memory "${BUDGET_MIB}M" -o "${OUT_DIR}/scores.tmp.parquet"
+    -t "${THR_GRID[0]}" --max-memory "${BUDGET_MIB}M" "${PASS_ARGS[@]}" -o "${OUT_DIR}/scores.tmp.parquet"
 mv "${OUT_DIR}/scores.tmp.parquet" "${OUT_DIR}/scores.parquet"
 
 # DuckDB sizes itself from node RAM, not the job limit: cap it and let it spill
