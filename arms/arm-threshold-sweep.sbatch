@@ -23,6 +23,7 @@
 #   scores.parquet   read_id, bucket_name, score (reads scoring >= 0.0001)
 #   host_counts.tsv  threshold \t tag \t host (reads or pairs scoring >= threshold)
 #   host.txt         node + rype commit
+#   time-v.stderr    GNU time -v of classify run (peak memory)
 #
 # Usage (from the repo root): sbatch arms/arm-threshold-sweep.sbatch <sr|lr> <holdout|wol2>
 
@@ -52,14 +53,18 @@ if [[ -s ${OUT_DIR}/host_counts.tsv ]]; then
 fi
 
 # rype's own --max-memory auto misses the Slurm limit (it sits on the job
-# cgroup, not the task's); same rule as rype-hf: 90% of the limit - 512 MiB.
-BUDGET_MIB=$(( ${SLURM_MEM_PER_NODE:-65536} * 9 / 10 - 512 ))
+# cgroup, not the task's), so the budget is explicit: half the job limit.
+# classify run sizes its input batches from the budget without the cap that
+# classify filter has, and runs past it: at 90% of 64 GB all four sets were
+# OOM-killed. The budget only sets the number of passes, not which reads
+# score as host.
+BUDGET_MIB=$(( ${SLURM_MEM_PER_NODE:-65536} / 2 ))
 logger "${MOD} ${SET} on $(hostname): w=${OP_WINDOW} t=${THR_GRID[0]} threads=${THREADS} budget=${BUDGET_MIB} MiB"
 RYPE_COMMIT=$(git -C "$(dirname "${RYPE_BIN}")/../.." rev-parse --short HEAD 2>/dev/null || echo '?')
 printf "host\t%s\nslurm_job\t%s\nrype_commit\t%s\nindex\t%s\n" "$(hostname)" "${SLURM_JOB_ID:-NA}" \
     "${RYPE_COMMIT}" "${INDEX}" > "${OUT_DIR}/host.txt"
 
-RAYON_NUM_THREADS=${THREADS} "${RYPE_BIN}" classify run -i "${INDEX}" "${INPUT_ARGS[@]}" \
+RAYON_NUM_THREADS=${THREADS} ${BINTIME} -o "${OUT_DIR}/time-v.stderr" "${RYPE_BIN}" classify run -i "${INDEX}" "${INPUT_ARGS[@]}" \
     -t "${THR_GRID[0]}" --max-memory "${BUDGET_MIB}M" -o "${OUT_DIR}/scores.tmp.parquet"
 mv "${OUT_DIR}/scores.tmp.parquet" "${OUT_DIR}/scores.parquet"
 
