@@ -36,6 +36,7 @@ import statistics
 import subprocess
 import sys
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import eval_common as E
@@ -49,7 +50,12 @@ def env(name):
 
 
 REPO, RESULTS = Path(env("REPO")), Path(env("RESULTS_DIR"))
-PIGZ = env("PIGZ_BIN")
+BGZIP = env("BGZIP_BIN")
+# Survivor counts dominate the eval: tens of GB of bgzip per modality. Each count
+# is `bgzip -@2 | awk` (about 3 CPUs, awk-bound), so they share one pool sized
+# to the job, across both modalities.
+COUNT_POOL = ThreadPoolExecutor(max_workers=max(1, E.DEFAULT_WORKERS // 3))
+_counts = {}  # (path, paired) -> Future of count_by_tag
 # approach -> (storage.tsv component, index files)
 CLEANIFIER = {
     "cleanifier": ("cleanifier_index", [Path(env("CLEANIFIER_EXACT_IDX") + ext) for ext in (".hash", ".info")]),
@@ -81,14 +87,16 @@ def write_tsv(path, fields, rows):
         w.writerows(rows)
 
 
-def count_by_tag(path, paired):
+def _count_by_tag(path, paired):
     """Reads per source tag in a concatenated survivor FASTQ ('@<tag>::<id>').
-    paired=True: interleaved pairs, records/2. Missing file -> {} (0 survivors)."""
+    paired=True: interleaved pairs, records/2. Missing file -> {} (0 survivors).
+    bgzip -d reads BGZF with threads (about 5x pigz -d on bgzip output) and plain
+    gzip single-threaded."""
     path = Path(path)
     if not path.exists() or path.stat().st_size == 0:
         return {}
-    awk = "NR % 4 == 1 { split($0, a, \"::\"); c[substr(a[1], 2)]++ } END { for (k in c) print k \"\\t\" c[k] }"
-    out = subprocess.run(f"{PIGZ} -dc -- '{path}' | awk '{awk}'", shell=True, check=True,
+    awk = "NR % 4 == 1 { c[substr($1, 2)]++ } END { for (k in c) print k \"\\t\" c[k] }"
+    out = subprocess.run(f"{BGZIP} -dc -@2 -- '{path}' | awk -F'::' '{awk}'", shell=True, check=True,
                          capture_output=True, text=True).stdout
     counts = {}
     for line in out.splitlines():
@@ -97,14 +105,30 @@ def count_by_tag(path, paired):
     return counts
 
 
-def survivor_tags(run_dir, paired):
-    """Per-tag survivor reads (pairs for short reads) of a rype-hf run: from
-    survivors_R1.fastq.gz for split R1/R2 output (one record per pair), else
-    from the single survivors.fastq.gz."""
+def prefetch(path, paired):
+    """Start counting path in COUNT_POOL (once); count_by_tag collects it."""
+    key = (str(path), paired)
+    if key not in _counts:
+        _counts[key] = COUNT_POOL.submit(_count_by_tag, path, paired)
+    return _counts[key]
+
+
+def count_by_tag(path, paired):
+    return prefetch(path, paired).result()
+
+
+def survivor_file(run_dir, paired):
+    """(survivor file, paired) of a rype-hf run: survivors_R1.fastq.gz for split
+    R1/R2 output (one record per pair), else the single survivors.fastq.gz."""
     r1 = Path(run_dir) / "survivors_R1.fastq.gz"
     if r1.exists():
-        return count_by_tag(r1, paired=False)
-    return count_by_tag(Path(run_dir) / "survivors.fastq.gz", paired)
+        return r1, False
+    return Path(run_dir) / "survivors.fastq.gz", paired
+
+
+def survivor_tags(run_dir, paired):
+    """Per-tag survivor reads (pairs for short reads) of a rype-hf run."""
+    return count_by_tag(*survivor_file(run_dir, paired))
 
 
 def fn_fp_rows(approach, holdout_counts, wol2_counts, base_totals, wol2_total):
@@ -133,6 +157,16 @@ def build(mod_key):
     wol2_total = sum(int(r["total"]) for r in totals if r["dataset"] == "wol2")
     reads = {"holdout": sum(base_totals.values()), "wol2": wol2_total}
     rep1_counts = {}
+    keep = "clean_1_keep.*" if m["paired"] else "clean_keep.*"
+    # Start every survivor count now so they run concurrently; the code below
+    # collects them as it needs them.
+    for s in ("holdout", "wol2"):
+        for a in NEW_RYPE:
+            prefetch(*survivor_file(results / s / a / "rep1", m["paired"]))
+        for a in CLEANIFIER:
+            kept = sorted((results / s / a).glob(keep))
+            if kept:
+                prefetch(kept[0], False)  # R1-only keep file: one record per pair
 
     def survivor_counts(s, a, w):
         """(per-tag survivor counts, wall s, peak tree RSS kB) of a complete
@@ -160,7 +194,6 @@ def build(mod_key):
         return counts, float(t["wall_seconds"]), int(t["peak_tree_rss_kb"])
 
     # -- cleanifier, exact and probabilistic (arms/arm-cleanifier.sbatch) -------------
-    keep = "clean_1_keep.*" if m["paired"] else "clean_keep.*"
     for approach, (component, index_files) in CLEANIFIER.items():
         res = {}
         for s in ("holdout", "wol2"):
@@ -305,5 +338,7 @@ def build(mod_key):
 
 
 if __name__ == "__main__":
-    for k in (sys.argv[1:] or ["sr", "lr"]):
-        build(k)
+    mods = sys.argv[1:] or ["sr", "lr"]
+    with ThreadPoolExecutor(max_workers=len(mods)) as ex:
+        for f in [ex.submit(build, k) for k in mods]:
+            f.result()
