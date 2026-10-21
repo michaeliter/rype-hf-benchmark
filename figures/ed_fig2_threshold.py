@@ -55,9 +55,12 @@ def plot_panel(ax, mod, title, op_thr, op_label, floor, unit="pair"):
         if z:
             ax.plot(t, y, marker="o", ms=5, mfc="none", mec=FN_COLOR, mew=1.0, zorder=4)
     if any(is_zero):
-        last_zero_t = max(t for t, z in zip(thr, is_zero) if z)
-        ax.annotate("FN = 0", (last_zero_t, floor), textcoords="offset points",
-                    xytext=(0, -7), ha="center", fontsize=5, color=FN_COLOR)
+        # Label the run of zero-FN points from above, centred on it (log x), so
+        # it stays clear of the x axis.
+        zeros = [t for t, z in zip(thr, is_zero) if z]
+        mid_t = (min(zeros) * max(zeros)) ** 0.5
+        ax.annotate("rype FN = 0", (mid_t, floor), textcoords="offset points",
+                    xytext=(0, 4), ha="center", va="bottom", fontsize=5, color=FN_COLOR)
     if movi["fnr"] > 0:
         ax.axhline(movi["fnr"], ls="--", lw=0.8, color=FN_COLOR, alpha=0.6, label="movi SOTA FN rate")
     else:
@@ -68,7 +71,9 @@ def plot_panel(ax, mod, title, op_thr, op_label, floor, unit="pair"):
     ax.set_xlabel("rype decision threshold")
     ax.set_ylabel(f"Per-{unit} error rate")
     ax.set_title(title)
-    ax.legend(loc="lower left", fontsize=5)
+    # Raised off the bottom so the movi SOTA FN line (and the zero-FN floor)
+    # pass below it rather than through it.
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 0.13), fontsize=5)
 
 
 set_nature_style()
