@@ -95,8 +95,8 @@ for ds, st in DATASETS.items():
             ax_rt.plot(t, fail_y[ds], marker="x", color=FAIL_COLOR, ms=3.5, mew=0.8, lw=0)
             ax_rt.annotate(f"{st['short']} {n}/{len(by[(ds, t)])}", (t, fail_y[ds]),
                            textcoords="offset points", xytext=(4, 0), ha="left", va="center",
-                           fontsize=4.5, color=FAIL_COLOR)
-ax_rt.set_ylabel(f"Time per {PER_READS // 1000}k reads (s)")
+                           fontsize=6, color=FAIL_COLOR)
+ax_rt.set_ylabel(f"Time (s) per\n{PER_READS // 1000}k reads")
 ax_rt.set_title("Runtime")
 handles = [mlines.Line2D([], [], marker=st["marker"], ls=st["ls"], label=st["label"], **line_kw)
            for st in DATASETS.values()]
@@ -104,7 +104,7 @@ any_failed = any(failed(rs) for rs in by.values())
 if any_failed:
     handles.append(mlines.Line2D([], [], marker="x", color=FAIL_COLOR, lw=0, ms=3.5, mew=0.8,
                                  label="did not finish (n/3)"))
-ax_rt.legend(handles=handles, loc="upper right", fontsize=5)
+ax_rt.legend(handles=handles, loc="upper right", fontsize=6.5)
 
 # (b) peak RSS against the job limit
 mem_all = []
@@ -127,7 +127,7 @@ mem_handles = [mlines.Line2D([], [], color="0.3", ls=(0, (4, 2)), lw=0.8, label=
 if any(num(r["peak_rss_kb"]) for rs in by.values() for r in failed(rs)):
     mem_handles.append(mlines.Line2D([], [], marker="x", color=FAIL_COLOR, lw=0, ms=3.5, mew=0.8,
                                      label="peak before OOM kill"))
-ax_mem.legend(handles=mem_handles, loc="upper left", fontsize=5)
+ax_mem.legend(handles=mem_handles, loc="upper left", fontsize=6.5)
 ax_mem.set_yscale("log", base=2)
 mem_floor = min(mem_all)
 ax_mem.set_ylim(mem_floor / 1.6, tx[-1] * 1.6)
@@ -144,7 +144,7 @@ for ds, st in DATASETS.items():
             ax_pass.plot([t] * len(vals), vals, marker=st["marker"], mfc="none", **dot_kw)
     ax_pass.plot(xs, ys, marker=st["marker"], ls=st["ls"], **line_kw)
 ax_pass.set_yscale("log")
-ax_pass.set_ylabel("Classification passes")
+ax_pass.set_ylabel("Passes")
 ax_pass.set_title("Passes over the index")
 
 for ax in (ax_rt, ax_mem, ax_pass):
@@ -160,8 +160,8 @@ ax_mem.set_yticks(mem_ticks)
 ax_mem.set_yticklabels([f"{t:g}" for t in mem_ticks])
 ax_mem.yaxis.set_minor_locator(NullLocator())
 
-fig.suptitle("Long-read RYpe, 8 CPU", fontsize=7)
-add_panel_labels([ax_rt, ax_mem, ax_pass], x=-0.3, y=1.1)
+fig.suptitle("Long-read RYpe, 8 CPU", fontsize=9)
+add_panel_labels([ax_rt, ax_mem, ax_pass], x=-0.3, y=1.22)
 save_nature_figure(fig, str(FIGDIR / "fig_supp_mem_scaling"))
 for ds in DATASETS:
     summ = []

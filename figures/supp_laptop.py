@@ -88,7 +88,7 @@ set_nature_style()
 fig, (ax_rt, ax_mem) = create_figure(width="double", nrows=1, ncols=2, aspect_ratio=0.5)
 bar_kw = dict(width=BAR_W, edgecolor="white", linewidth=0.5)
 note_kw = dict(textcoords="offset points", xytext=(0, 2), ha="center", va="bottom",
-               fontsize=4, rotation=90, color="0.35")
+               fontsize=5.5, rotation=90, color="0.35")
 NOTE = {"missing": "not run"}
 
 # (a) runtime: modality x dataset, laptop bars with 64 GB ticks. Tools that do
@@ -113,7 +113,7 @@ for k in RT_SERIES:
                 rt_vals.append(srv)
             # value above the bar or its 64 GB tick, whichever is higher; rype's in bold
             ax_rt.annotate(fmt_seconds(v), (x, max(v, srv or 0)), textcoords="offset points",
-                           xytext=(0, 3), ha="center", va="bottom", fontsize=4.5, rotation=90,
+                           xytext=(0, 3), ha="center", va="bottom", fontsize=6, rotation=90,
                            fontweight=weight(k))
 for k in RT_SERIES:   # notes after the bars, once the y-range is known
     for x, (g, ds) in zip(xs_rt + RT_OFF[k], RT_GROUPS):
@@ -121,7 +121,7 @@ for k in RT_SERIES:   # notes after the bars, once the y-range is known
         if r["status"] != "ok":
             ax_rt.annotate(NOTE.get(r["status"], r["status"]), (x, min(rt_vals) / 2.5), **note_kw)
 ax_rt.set_xticks(xs_rt)
-ax_rt.set_xticklabels([f"{g}\n{RT_LABEL[ds]}" for g, ds in RT_GROUPS], fontsize=5.5)
+ax_rt.set_xticklabels([f"{g}\n{RT_LABEL[ds]}" for g, ds in RT_GROUPS], fontsize=7)
 ax_rt.set_ylabel(f"Wall-clock time per\n{PER_READS:,} reads/pairs (s)")
 ax_rt.set_title(f"Runtime, 8 CPU / {MEM} GB")
 ax_rt.set_yscale("log")
@@ -132,7 +132,7 @@ handles += [mpatches.Patch(color=S.COLOR[k], label=S.LABEL[k]) for k in SERIES i
 handles.append(mpatches.Patch(fill=False, hatch="////", edgecolor="0.4", linewidth=0.6,
                               label=f"does not fit in {MEM} GB (64 GB peak)"))
 handles.append(mlines.Line2D([], [], color="black", linewidth=0.8, label="same tool, 8 CPU / 64 GB"))
-ax_rt.legend(handles=handles, loc="upper left", fontsize=5)
+ax_rt.legend(handles=handles, loc="upper left", fontsize=6.5)
 
 # (b) peak RSS, holdout, against the job limit. Labels sit on a white patch
 # so the dashed limit line passes behind them, not through them.
@@ -147,20 +147,20 @@ for k in SERIES:
             v = num(r["peak_rss_kb"]) * GIB_PER_KB
             ax_mem.bar(x, v, color=color, **bar_kw)
             ax_mem.annotate(f"{v:.1f}", (x, v), textcoords="offset points", xytext=(0, 3),
-                            ha="center", fontsize=4.5, rotation=90, fontweight=weight(k),
+                            ha="center", fontsize=6, rotation=90, fontweight=weight(k),
                             bbox=label_bg, zorder=4)
             mem_vals.append(v)
         elif r["status"] == "does_not_fit" and num(r["server_peak_rss_kb"]) is not None:
             v = num(r["server_peak_rss_kb"]) * GIB_PER_KB
             ax_mem.bar(x, v, width=BAR_W, fill=False, hatch="////", edgecolor=color, linewidth=0.6)
             ax_mem.annotate(f"{v:.0f}", (x, v), textcoords="offset points", xytext=(0, 3),
-                            ha="center", fontsize=4.5, rotation=90, color="0.35", bbox=label_bg, zorder=4)
+                            ha="center", fontsize=6, rotation=90, color="0.35", bbox=label_bg, zorder=4)
             mem_vals.append(v)
         else:
             ax_mem.annotate(NOTE.get(r["status"], r["status"]), (x, 0), **note_kw)
 ax_mem.axhline(MEM, color="0.3", linestyle="--", linewidth=0.6, zorder=3)
 ax_mem.annotate(f"{MEM} GiB\njob limit", (1.0, MEM), xycoords=("axes fraction", "data"),
-                textcoords="offset points", xytext=(3, 0), ha="left", va="center", fontsize=5, color="0.3",
+                textcoords="offset points", xytext=(3, 0), ha="left", va="center", fontsize=6.5, color="0.3",
                 annotation_clip=False)
 ax_mem.set_xticks(xs); ax_mem.set_xticklabels(GROUPS)
 ax_mem.set_ylabel("Peak resident memory (GiB)")

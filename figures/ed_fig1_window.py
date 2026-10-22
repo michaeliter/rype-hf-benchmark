@@ -66,9 +66,9 @@ def plot_fn(ax, mod, title, unit="pair"):
                     ax.plot(w, y, marker="o", ms=6, mfc="none", mec=mod.COLOR[a], mew=1.0, zorder=4)
     ax.set_yscale("log"); ax.set_ylim(bottom=floor)
     if any_zero:
-        ax.annotate("open marker = measured FN = 0", (0.02, 0.02), xycoords="axes fraction",
-                    fontsize=4.5, color="0.4", ha="left", va="bottom")
-    ax.set_xlabel("RYpe window size, w"); ax.set_ylabel(f"Per-{unit} false-negative rate")
+        ax.annotate("open marker = measured FN = 0", (0.98, 0.72), xycoords="axes fraction",
+                    fontsize=6.5, color="0.4", ha="right", va="top")
+    ax.set_xlabel("RYpe window size, w"); ax.set_ylabel(f"Per-{unit} FN rate")
     ax.set_xticks(mod.WINDOWS); ax.set_title(title)
 
 
@@ -85,7 +85,7 @@ def plot_fp(ax, mod, title, unit="pair"):
             ax.plot(mod.WINDOWS, ys, color=mod.COLOR[a], marker=mod.MARKER[a], markersize=3,
                     linewidth=0.9, label=mod.LABEL[a], zorder=3)
     ax.set_yscale("log"); ax.set_ylim(bottom=floor)
-    ax.set_xlabel("RYpe window size, w"); ax.set_ylabel(f"Per-{unit} false-positive rate")
+    ax.set_xlabel("RYpe window size, w"); ax.set_ylabel(f"Per-{unit} FP rate")
     ax.set_xticks(mod.WINDOWS); ax.set_title(title)
 
 
@@ -103,14 +103,8 @@ def plot_runtime(ax, mod, title, unit="pair"):
                 ax.plot(mod.WINDOWS, ys, color=mod.COLOR[a], ls=ls,
                         marker=mod.MARKER[a], ms=3, lw=0.9)
     ax.set_ylim(bottom=0)
-    ax.set_xlabel("RYpe window size, w"); ax.set_ylabel(f"Wall time (s per 1M {unit}s)")
+    ax.set_xlabel("RYpe window size, w"); ax.set_ylabel(f"Time (s) per\n1M {unit}s")
     ax.set_xticks(mod.WINDOWS); ax.set_title(title)
-    from matplotlib.lines import Line2D
-    h = [Line2D([0], [0], color=mod.COLOR[a], marker=mod.MARKER[a], lw=0.9, label=mod.LABEL[a])
-         for a in present(mod)]
-    h += [Line2D([0], [0], color="0.3", ls="-", label="holdout (FN set)"),
-          Line2D([0], [0], color="0.3", ls="--", label="wol2 (FP set)")]
-    ax.legend(handles=h, loc="best", fontsize=5)
 
 
 fig, axes = create_figure(width="double", nrows=3, ncols=2, aspect_ratio=1.35)
@@ -123,8 +117,14 @@ plot_fp(ax_fp_lr, LR, "Long read (pbsim3), FP vs window", unit="read")
 plot_runtime(ax_rt_sr, SR, "Short read (ART), runtime vs window", unit="pair")
 plot_runtime(ax_rt_lr, LR, "Long read (pbsim3), runtime vs window", unit="read")
 
-for ax in (ax_fn_sr, ax_fn_lr, ax_fp_sr, ax_fp_lr):
-    ax.legend(loc="best", fontsize=5)
+# one legend for all six panels, above them, so no panel's data sits under it
+from matplotlib.lines import Line2D
+h = [Line2D([0], [0], color=SR.COLOR[a], marker=SR.MARKER[a], ms=3, lw=0.9,
+            ls="-" if a not in SR.WINDOW_INDEPENDENT else ":", label=SR.LABEL[a])
+     for a in present(SR)]
+h += [Line2D([0], [0], color="0.3", ls="-", label="holdout (FN set), runtime"),
+      Line2D([0], [0], color="0.3", ls="--", label="wol2 (FP set), runtime")]
+fig.legend(handles=h, loc="outside upper center", ncol=4, fontsize=7, frameon=False)
 
 add_panel_labels(axes)
 save_nature_figure(fig, str(FIGDIR / "fig_supp_window_sweep"))

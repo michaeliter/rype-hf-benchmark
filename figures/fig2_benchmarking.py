@@ -143,8 +143,8 @@ for k in SERIES:
     ms = [rt_stats[(g, ds, k)][0] for g, ds in RT_GROUPS]
     ax_rt.bar(xs_rt + OFF[k], ms, color=[color_of(k, g) for g, _ in RT_GROUPS], **bar_kw)
 ax_rt.set_xticks(xs_rt)
-ax_rt.set_xticklabels([f"{g}\n{RT_LABEL[ds]}" for g, ds in RT_GROUPS], fontsize=5.5)
-ax_rt.set_ylabel(f"Wall-clock time per {PER_READS:,} reads/pairs (s)")
+ax_rt.set_xticklabels([f"{g}\n{RT_LABEL[ds]}" for g, ds in RT_GROUPS], fontsize=7)
+ax_rt.set_ylabel(f"Wall-clock time (s)\nper {PER_READS:,} reads or pairs")
 ax_rt.set_title("Runtime")
 ax_rt.set_yscale("log")
 all_rt = [v[0] for v in rt_stats.values()]
@@ -160,12 +160,12 @@ for k in SERIES:
     for x, (g, ds) in zip(xs_rt + OFF[k], RT_GROUPS):
         m = rt_stats[(g, ds, k)][0]
         ax_rt.annotate(fmt_seconds(m), (x, m), textcoords="offset points", xytext=(0, 3),
-                       ha="center", va="bottom", fontsize=4.5, rotation=90,
+                       ha="center", va="bottom", fontsize=6, rotation=90,
                        fontweight="bold" if k == "rype" else "normal")
 legend_handles = [mpatches.Patch(color=S.COLOR[RYPE_APPROACH[g]], label=f"{S.LABEL[RYPE_APPROACH[g]]} ({g.split()[0].lower()})")
                   for g in GROUPS]
 legend_handles += [mpatches.Patch(color=S.COLOR[k], label=S.LABEL[k]) for k in SERIES if k != "rype"]
-ax_rt.legend(handles=legend_handles, loc="upper left", fontsize=5)
+ax_rt.legend(handles=legend_handles, loc="upper left", fontsize=6.5)
 
 # (b) peak RSS, holdout
 mem_stats = {(g, k): mean_sd(memory[(g, approach_of(k, g))]) for g in GROUPS for k in SERIES}
@@ -174,7 +174,7 @@ for k in SERIES:
     ax_mem.bar(xs + OFF[k], ms, color=[color_of(k, g) for g in GROUPS], **bar_kw)
     for x, m in zip(xs + OFF[k], ms):
         ax_mem.annotate(f"{m:.0f}", (x, m), textcoords="offset points", xytext=(0, 3),
-                        ha="center", fontsize=4.5, rotation=90,
+                        ha="center", fontsize=6, rotation=90,
                         fontweight="bold" if k == "rype" else "normal")
 ax_mem.set_xticks(xs); ax_mem.set_xticklabels(GROUPS)
 ax_mem.set_ylabel("Peak resident memory (GiB)")
@@ -193,11 +193,12 @@ for k in SERIES:
             ax_store.bar(x, gb, bottom=bottom, width=BAR_W, color=shade, edgecolor="white", linewidth=0.5)
             # single-component bars are identified by the legend; only label stacks
             if len(comps) > 1 and gb / total_gb > 0.06:
-                ax_store.annotate(f"{clabel}\n{gb:.2g} GB", (x, bottom + gb / 2), ha="center",
-                                  va="center", fontsize=3.6, color="black")
+                # short name only (the bars are narrow); the caption spells each one out
+                ax_store.annotate(f"{clabel.split()[0].replace('hprc-yr1', 'HPRC')}\n{gb:.2g}", (x, bottom + gb / 2), ha="center",
+                                  va="center", fontsize=5, color="black")
             bottom += gb
         ax_store.annotate(f"{bottom:.1f}", (x, bottom), textcoords="offset points", xytext=(0, 3),
-                          ha="center", fontsize=4.5, rotation=90,
+                          ha="center", fontsize=6, rotation=90,
                           fontweight="bold" if k == "rype" else "normal")
 all_comp_gb = [b / GB for k in SERIES for g in GROUPS for _, b in index_components(k, g)]
 all_tot_gb = [sum(b for _, b in index_components(k, g)) / GB for k in SERIES for g in GROUPS]
@@ -220,9 +221,9 @@ for k in SERIES:
                edgecolor="white", linewidth=0.5)
     for x, v, pv in zip(xs4 + OFF[k], vals[k], plot_vals):
         ax_acc.annotate("0" if v == 0 else f"{v:.2e}", (x, pv), textcoords="offset points",
-                        xytext=(0, 3), ha="center", fontsize=4, rotation=90, va="bottom",
+                        xytext=(0, 3), ha="center", fontsize=5.5, rotation=90, va="bottom",
                         fontweight="bold" if k == "rype" else "normal")
-ax_acc.set_xticks(xs4); ax_acc.set_xticklabels([f"{g}\n{label}" for g, label, _ in dgroups], fontsize=5.5)
+ax_acc.set_xticks(xs4); ax_acc.set_xticklabels([f"{g}\n{label}" for g, label, _ in dgroups], fontsize=6.5)
 ax_acc.set_ylabel("Error rate")
 ax_acc.set_yscale("log")
 ax_acc.set_ylim(bottom=floor_d / 1.5, top=max(v for vs in vals.values() for v in vs) * 8)

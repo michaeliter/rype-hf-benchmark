@@ -104,14 +104,14 @@ def set_nature_style(context='paper'):
         # (reviewer feedback: axis labels and tick numbers were too small).
         'font.family': 'sans-serif',
         'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-        'font.size': 9 * scale,
-        'axes.titlesize': 10 * scale,
-        'axes.labelsize': 9 * scale,
-        'xtick.labelsize': 8 * scale,
-        'ytick.labelsize': 8 * scale,
-        'legend.fontsize': 7 * scale,
-        'legend.title_fontsize': 8 * scale,
-        'figure.titlesize': 10 * scale,
+        'font.size': 10 * scale,
+        'axes.titlesize': 11 * scale,
+        'axes.labelsize': 10 * scale,
+        'xtick.labelsize': 9 * scale,
+        'ytick.labelsize': 9 * scale,
+        'legend.fontsize': 8 * scale,
+        'legend.title_fontsize': 9 * scale,
+        'figure.titlesize': 11 * scale,
 
         # Line weights - thin for elegance and data-ink ratio
         'axes.linewidth': 0.5,
@@ -277,7 +277,7 @@ def add_panel_label(ax, label, x=-0.12, y=1.08, **kwargs):
     Nature style: 8pt, bold, lowercase, upright
     """
     defaults = {
-        'fontsize': 8,
+        'fontsize': 9,
         'fontweight': 'bold',
         'va': 'top',
         'ha': 'right',

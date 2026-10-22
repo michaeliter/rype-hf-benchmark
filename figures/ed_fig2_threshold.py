@@ -48,8 +48,10 @@ def plot_panel(ax, mod, title, op_thr, op_label, floor, unit="pair"):
 
     ax.axvline(op_thr, color="0.35", ls="-", lw=0.7, alpha=0.8, zorder=1)
     ax.annotate(op_label, (op_thr, 1.0), xycoords=("data", "axes fraction"),
-                textcoords="offset points", xytext=(3, -2), va="top", ha="left",
-                fontsize=5.5, color="0.35")
+                textcoords="offset points", va="top",
+                # left of the line when there is room, so it clears the FN curve
+                xytext=(-3, -2) if op_thr > 1e-2 else (3, -2), ha="right" if op_thr > 1e-2 else "left",
+                fontsize=7, color="0.35")
     ax.plot(thr, fnr_plot, marker="o", ms=3, lw=0.9, color=FN_COLOR, label="RYpe FN rate", zorder=3)
     for t, y, z in zip(thr, fnr_plot, is_zero):
         if z:
@@ -60,7 +62,7 @@ def plot_panel(ax, mod, title, op_thr, op_label, floor, unit="pair"):
         zeros = [t for t, z in zip(thr, is_zero) if z]
         mid_t = (min(zeros) * max(zeros)) ** 0.5
         ax.annotate("RYpe FN = 0", (mid_t, floor), textcoords="offset points",
-                    xytext=(0, 4), ha="center", va="bottom", fontsize=5, color=FN_COLOR)
+                    xytext=(0, 4), ha="center", va="bottom", fontsize=6.5, color=FN_COLOR)
     if movi["fnr"] > 0:
         ax.axhline(movi["fnr"], ls="--", lw=0.8, color=FN_COLOR, alpha=0.6, label="movi SOTA FN rate")
     else:
@@ -73,7 +75,7 @@ def plot_panel(ax, mod, title, op_thr, op_label, floor, unit="pair"):
     ax.set_title(title)
     # Raised off the bottom so the movi SOTA FN line (and the zero-FN floor)
     # pass below it rather than through it.
-    ax.legend(loc="lower left", bbox_to_anchor=(0, 0.13), fontsize=5)
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 0.13), fontsize=6.5)
 
 
 set_nature_style()
