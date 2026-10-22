@@ -5,8 +5,8 @@ limits from 64 down to 1 GB, three replicates per limit.
 Three panels, x = job memory limit (log2):
   (a) wall-clock time per 100k reads, human holdout and microbial wol2
       (line: mean of the replicates that finished; dots: each replicate)
-  (b) peak RSS of the process tree, with the job limit (dashed) and the
-      --max-memory rype-hf gave rype (dotted: 90% of the limit minus 512 MiB)
+  (b) peak RSS of the process tree, with the job limit (dashed); rype-hf
+      gives rype 90% of the limit minus 512 MiB (stated in the methods)
   (c) rype classification passes: a smaller budget means more passes over
       the index, which is what costs time
 Runs that did not finish (OOM-killed or failed) are marked with an x at the
@@ -106,7 +106,7 @@ if any_failed:
                                  label="did not finish (n/3)"))
 ax_rt.legend(handles=handles, loc="upper right", fontsize=5)
 
-# (b) peak RSS against the job limit and rype's budget
+# (b) peak RSS against the job limit
 mem_all = []
 for ds, st in DATASETS.items():
     xs, ys = [], []
@@ -123,21 +123,13 @@ for ds, st in DATASETS.items():
     ax_mem.plot(xs, ys, marker=st["marker"], ls=st["ls"], **line_kw)
 tx = np.array(tiers, float)
 ax_mem.plot(tx, tx, color="0.3", ls=(0, (4, 2)), lw=0.8, zorder=1)
-budget = defaultdict(list)
-for r in rows:
-    if num(r["rype_budget_mib"]):
-        budget[int(r["tier_gb"])].append(num(r["rype_budget_mib"]) / 1024)
-bt = sorted(budget)
-ax_mem.plot(bt, [np.mean(budget[t]) for t in bt], color="0.5", ls=":", lw=0.9, zorder=1)
-mem_handles = [
-    mlines.Line2D([], [], color="0.3", ls=(0, (4, 2)), lw=0.8, label="job memory limit"),
-    mlines.Line2D([], [], color="0.5", ls=":", lw=0.9, label="rype --max-memory\n(90% of limit − 512 MiB)")]
+mem_handles = [mlines.Line2D([], [], color="0.3", ls=(0, (4, 2)), lw=0.8, label="job memory limit")]
 if any(num(r["peak_rss_kb"]) for rs in by.values() for r in failed(rs)):
     mem_handles.append(mlines.Line2D([], [], marker="x", color=FAIL_COLOR, lw=0, ms=3.5, mew=0.8,
                                      label="peak before OOM kill"))
 ax_mem.legend(handles=mem_handles, loc="upper left", fontsize=5)
 ax_mem.set_yscale("log", base=2)
-mem_floor = min(mem_all + [np.mean(budget[t]) for t in bt])
+mem_floor = min(mem_all)
 ax_mem.set_ylim(mem_floor / 1.6, tx[-1] * 1.6)
 ax_mem.set_ylabel("Peak RSS (GiB)")
 ax_mem.set_title("Peak RSS")
