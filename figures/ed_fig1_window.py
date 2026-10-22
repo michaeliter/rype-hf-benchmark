@@ -68,7 +68,7 @@ def plot_fn(ax, mod, title, unit="pair"):
     if any_zero:
         ax.annotate("open marker = measured FN = 0", (0.02, 0.02), xycoords="axes fraction",
                     fontsize=4.5, color="0.4", ha="left", va="bottom")
-    ax.set_xlabel("rype window size, w"); ax.set_ylabel(f"Per-{unit} false-negative rate")
+    ax.set_xlabel("RYpe window size, w"); ax.set_ylabel(f"Per-{unit} false-negative rate")
     ax.set_xticks(mod.WINDOWS); ax.set_title(title)
 
 
@@ -85,7 +85,7 @@ def plot_fp(ax, mod, title, unit="pair"):
             ax.plot(mod.WINDOWS, ys, color=mod.COLOR[a], marker=mod.MARKER[a], markersize=3,
                     linewidth=0.9, label=mod.LABEL[a], zorder=3)
     ax.set_yscale("log"); ax.set_ylim(bottom=floor)
-    ax.set_xlabel("rype window size, w"); ax.set_ylabel(f"Per-{unit} false-positive rate")
+    ax.set_xlabel("RYpe window size, w"); ax.set_ylabel(f"Per-{unit} false-positive rate")
     ax.set_xticks(mod.WINDOWS); ax.set_title(title)
 
 
@@ -103,7 +103,7 @@ def plot_runtime(ax, mod, title, unit="pair"):
                 ax.plot(mod.WINDOWS, ys, color=mod.COLOR[a], ls=ls,
                         marker=mod.MARKER[a], ms=3, lw=0.9)
     ax.set_ylim(bottom=0)
-    ax.set_xlabel("rype window size, w"); ax.set_ylabel(f"Wall time (s per 1M {unit}s)")
+    ax.set_xlabel("RYpe window size, w"); ax.set_ylabel(f"Wall time (s per 1M {unit}s)")
     ax.set_xticks(mod.WINDOWS); ax.set_title(title)
     from matplotlib.lines import Line2D
     h = [Line2D([0], [0], color=mod.COLOR[a], marker=mod.MARKER[a], lw=0.9, label=mod.LABEL[a])

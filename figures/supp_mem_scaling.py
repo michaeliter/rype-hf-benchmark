@@ -160,7 +160,7 @@ ax_mem.set_yticks(mem_ticks)
 ax_mem.set_yticklabels([f"{t:g}" for t in mem_ticks])
 ax_mem.yaxis.set_minor_locator(NullLocator())
 
-fig.suptitle("Long-read rype, 8 CPU", fontsize=7)
+fig.suptitle("Long-read RYpe, 8 CPU", fontsize=7)
 add_panel_labels([ax_rt, ax_mem, ax_pass], x=-0.3, y=1.1)
 save_nature_figure(fig, str(FIGDIR / "fig_supp_mem_scaling"))
 for ds in DATASETS:

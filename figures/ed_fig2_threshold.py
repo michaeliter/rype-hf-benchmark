@@ -50,7 +50,7 @@ def plot_panel(ax, mod, title, op_thr, op_label, floor, unit="pair"):
     ax.annotate(op_label, (op_thr, 1.0), xycoords=("data", "axes fraction"),
                 textcoords="offset points", xytext=(3, -2), va="top", ha="left",
                 fontsize=5.5, color="0.35")
-    ax.plot(thr, fnr_plot, marker="o", ms=3, lw=0.9, color=FN_COLOR, label="rype FN rate", zorder=3)
+    ax.plot(thr, fnr_plot, marker="o", ms=3, lw=0.9, color=FN_COLOR, label="RYpe FN rate", zorder=3)
     for t, y, z in zip(thr, fnr_plot, is_zero):
         if z:
             ax.plot(t, y, marker="o", ms=5, mfc="none", mec=FN_COLOR, mew=1.0, zorder=4)
@@ -59,16 +59,16 @@ def plot_panel(ax, mod, title, op_thr, op_label, floor, unit="pair"):
         # it stays clear of the x axis.
         zeros = [t for t, z in zip(thr, is_zero) if z]
         mid_t = (min(zeros) * max(zeros)) ** 0.5
-        ax.annotate("rype FN = 0", (mid_t, floor), textcoords="offset points",
+        ax.annotate("RYpe FN = 0", (mid_t, floor), textcoords="offset points",
                     xytext=(0, 4), ha="center", va="bottom", fontsize=5, color=FN_COLOR)
     if movi["fnr"] > 0:
         ax.axhline(movi["fnr"], ls="--", lw=0.8, color=FN_COLOR, alpha=0.6, label="movi SOTA FN rate")
     else:
         ax.axhline(floor, ls="--", lw=0.8, color=FN_COLOR, alpha=0.6, label="movi SOTA FN rate = 0")
-    ax.plot(thr, fpr, marker="s", ms=3, lw=0.9, color=FP_COLOR, label="rype FP rate", zorder=3)
+    ax.plot(thr, fpr, marker="s", ms=3, lw=0.9, color=FP_COLOR, label="RYpe FP rate", zorder=3)
     ax.axhline(movi["fpr"], ls="--", lw=0.8, color=FP_COLOR, alpha=0.6, label="movi SOTA FP rate")
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.set_xlabel("rype decision threshold")
+    ax.set_xlabel("RYpe decision threshold")
     ax.set_ylabel(f"Per-{unit} error rate")
     ax.set_title(title)
     # Raised off the bottom so the movi SOTA FN line (and the zero-FN floor)

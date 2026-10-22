@@ -13,7 +13,7 @@ EXTERNAL = ["cleanifier", "cleanifier-filter", "movi2-alone", "mm2-mm2-movi"]
 COLOR = {"rype": "#0077BB", "rype-mm2": "#009988", "mm2-mm2-movi": "#CC3311",
          "movi2-alone": "#EE7733", "cleanifier": "#BBBBBB",
          "cleanifier-filter": "#AA3377"}
-LABEL = {"rype": "rype", "rype-mm2": "rype + mm2", "mm2-mm2-movi": "mm2→mm2→Movi (SOTA)",
+LABEL = {"rype": "RYpe", "rype-mm2": "RYpe + mm2", "mm2-mm2-movi": "mm2→mm2→Movi (SOTA)",
          "movi2-alone": "Movi 2 alone (no mm2)",
          "cleanifier": "cleanifier (exact)", "cleanifier-filter": "cleanifier (probabilistic)"}
 MARKER = {"rype": "o", "rype-mm2": "s", "mm2-mm2-movi": "^", "movi2-alone": "D",

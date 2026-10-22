@@ -88,7 +88,7 @@ def index_components(k, g):
     st = storage[g]
     a = approach_of(k, g)
     if k == "rype":
-        comps = [("rype index", st[f"rype_ryxdi_w{OP_WINDOW}"])]
+        comps = [("RYpe index", st[f"rype_ryxdi_w{OP_WINDOW}"])]
         if a == "rype-mm2":   # T2T-only .mmi (SR: not the SOTA arms' T2T + phiX file)
             comps.append(("T2T (minimap2)", st.get("rype_mm2_mmi", st["sota_t2t_mmi"])))
         return comps
